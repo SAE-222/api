@@ -7,4 +7,5 @@ const app = require('./app');
 const port = process.env.APIPORT || 8393;
 const server = http.createServer();
 
+server.on('request', app);
 server.listen(port);
