@@ -1,40 +1,47 @@
 const express = require('express');
 const router = express.Router();
-const conn = require('../../conn');
+const { connectToDatabase } = require('../../conn');
 
-// SELECT * FROM Catégories WHERE id_parent IN(SELECT id FROM Catégories WHERE id_parent IS NULL)
 
-router.get('/', (req, res, next) => {
-    conn.then((c) => {
-        c.query('SELECT * FROM Catégories WHERE id_parent IN(SELECT id FROM Catégories WHERE id_parent IS NULL)').then((rows) => {
+router.get('/', async (req, res, next) => {
+    try {
+        const conn = await connectToDatabase();
+        const categories = await conn.query('SELECT * FROM Categories WHERE id_parent IS NULL');
 
-            for (categorie of rows) {
-                c.query('SELECT * FROM Catégories WHERE id_parent = ?', [categorie.id]).then((rows) => {
-                    categorie.subs = rows;
-                }).catch((err) => {
-                    res.status(500).json({error: err});
-                });
-            }
+        res.status(200).json(categories);
 
-            res.status(200).json(rows);
-        }).catch((err) => {
-            res.status(500).json({error: err});
-        });
-    }).catch((err) => {
-        res.status(500).json({error: err});
-    });
+        conn.end(); // Fermer la connexion après l'utilisation
+    } catch (err) {
+        console.error('Erreur lors de la récupération des catégories :', err);
+        res.status(500).json({ error: err });
+    }
 });
 
-router.post('/?name=:name&label=:label&parent=:parent', (req, res, next) => {
-    conn.then((c) => {
-        c.query('INSERT INTO Catégories (name, label, id_parent) VALUES (?, ?, ?)', [req.params.name, req.params.label, req.params.parent]).then((rows) => {
-            res.status(200).json(rows);
-        }).catch((err) => {
-            res.status(500).json({error: err});
-        });
-    }).catch((err) => {
-        res.status(500).json({error: err});
-    });
+router.post('/', async (req, res, next) => {
+    try {
+        const { nom, id_parent } = req.body;
+
+        let idParentToInsert = null;
+
+        if (id_parent !== null) {
+            idParentToInsert = String(id_parent);
+        }
+
+        const conn = await connectToDatabase();
+        await conn.query('INSERT INTO Categories (nom, id_parent) VALUES (?, ?)', [nom, idParentToInsert]);
+
+        // Retourner une réponse sans inclure la valeur insérée dans le résultat
+        res.status(200).json({ message: 'Produit ajouté avec succès' });
+
+        conn.end();
+    } catch (err) {
+        console.error('Erreur lors de l\'ajout du produit :', err);
+        res.status(500).json({ error: err });
+    }
 });
+
+
+
+
 
 module.exports = router;
