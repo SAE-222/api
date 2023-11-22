@@ -1,5 +1,4 @@
-const express = require('express');
-const router = express.Router();
+
 
 router.get('/', (req, res, next) => {
     // GET request handling
@@ -16,9 +15,3 @@ router.update('/', (req, res, next) => {
 router.delete('/', (req, res, next) => {
     // DELETE request handling
 });
-
-router.get('/:param', (req, res, next) => {
-    // GET request handling (param accessible par req.params.param)
-});
-
-module.exports = router;
