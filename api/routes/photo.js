@@ -5,25 +5,25 @@ const { connectToDatabase } = require('../../conn');
 router.get('/', async (req, res, next) => {
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories');
+        const groups = await conn.query('SELECT id_photo,ordre,liens,id_produit  FROM Photo');
 
         res.status(200).json(groups);
 
         conn.end();
     } catch (err) {
-        console.error('Erreur lors de la récupération des groupes :', err);
+        console.error('Erreur lors de la récupération des commande :', err);
         res.status(500).json({ error: err });
     }
 });
 
 router.post('/', async (req, res, next) => {
     try {
-        const { nom,id_parent,label } = req.body;
+        const {ordre,liens,id_produit} = req.body;
 
         const conn = await connectToDatabase();
         const result = await conn.query(
-            'INSERT INTO Categories (nom,id_parent,label) VALUES (?, ?, ?)',
-            [nom,id_parent,label]
+            'INSERT INTO Photo (ordre,liens,id_produit) VALUES (?, ?, ?)',
+            [ordre,liens,id_produit]
         );
 
         res.status(200).json({ message: 'Produit ajouté avec succès', result });
@@ -34,4 +34,5 @@ router.post('/', async (req, res, next) => {
         res.status(500).json({ error: err });
     }
 });
+
 module.exports = router;

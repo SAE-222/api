@@ -5,7 +5,7 @@ const { connectToDatabase } = require('../../conn');
 router.get('/', async (req, res, next) => {
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories');
+        const groups = await conn.query('SELECT id_produit, description, prix,nom,taille,disponibilite,stock,id_categories,id_promotion,id_marque FROM Produit');
 
         res.status(200).json(groups);
 
@@ -16,14 +16,15 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+
 router.post('/', async (req, res, next) => {
     try {
-        const { nom,id_parent,label } = req.body;
+        const {description, prix, nom, disponibilite, stock, id_categories, id_promotion, id_marque } = req.body;
 
         const conn = await connectToDatabase();
         const result = await conn.query(
-            'INSERT INTO Categories (nom,id_parent,label) VALUES (?, ?, ?)',
-            [nom,id_parent,label]
+            'INSERT INTO Produit (description, prix, nom,taille, disponibilite, stock, id_categories, id_promotion, id_marque) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [description, prix, nom, disponibilite, stock, id_categories, id_promotion, id_marque]
         );
 
         res.status(200).json({ message: 'Produit ajouté avec succès', result });

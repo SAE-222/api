@@ -1,40 +1,48 @@
 const express = require('express');
 const router = express.Router();
-const conn = require('../../conn');
+const { connectToDatabase } = require('../../conn');
 
-// SELECT * FROM Catégories WHERE id_parent IN(SELECT id FROM Catégories WHERE id_parent IS NULL)
 
-router.get('/', (req, res, next) => {
-    conn.then((c) => {
-        c.query('SELECT * FROM Catégories WHERE id_parent IN(SELECT id FROM Catégories WHERE id_parent IS NULL)').then((rows) => {
+router.get('/:param', async (req, res, next) => {
+    try {
+        const param = req.params.param;
+        const conn = await connectToDatabase();
+        let categories = [];
 
-            for (categorie of rows) {
-                c.query('SELECT * FROM Catégories WHERE id_parent = ?', [categorie.id]).then((rows) => {
-                    categorie.subs = rows;
-                }).catch((err) => {
-                    res.status(500).json({error: err});
-                });
+        if (!isNaN(param)) { // Vérifie si le paramètre est un nombre (ID)
+            categories = await conn.query(
+                'SELECT id_categories, nom, label ' +
+                'FROM Categories ' +
+                'WHERE id_parent = ?',
+                [param]
+            );
+        } else { // Si ce n'est pas un nombre, considère que c'est un nom de catégorie
+            const parentCategory = await conn.query(
+                'SELECT id_categories FROM Categories WHERE nom = ?',
+                [param]
+            );
+
+            if (parentCategory.length === 0) {
+                return res.status(404).json({ error: "Catégorie parente non trouvée" });
             }
 
-            res.status(200).json(rows);
-        }).catch((err) => {
-            res.status(500).json({error: err});
-        });
-    }).catch((err) => {
-        res.status(500).json({error: err});
-    });
+            const categoryId = parentCategory[0].id_categories;
+
+            categories = await conn.query(
+                'SELECT id_categories, nom, label ' +
+                'FROM Categories ' +
+                'WHERE id_parent = ?',
+                [categoryId]
+            );
+        }
+
+        res.status(200).json(categories);
+        conn.end();
+    } catch (err) {
+        console.error('Erreur lors de la récupération des catégories filles :', err);
+        res.status(500).json({ error: err });
+    }
 });
 
-router.post('/?name=:name&label=:label&parent=:parent', (req, res, next) => {
-    conn.then((c) => {
-        c.query('INSERT INTO Catégories (name, label, id_parent) VALUES (?, ?, ?)', [req.params.name, req.params.label, req.params.parent]).then((rows) => {
-            res.status(200).json(rows);
-        }).catch((err) => {
-            res.status(500).json({error: err});
-        });
-    }).catch((err) => {
-        res.status(500).json({error: err});
-    });
-});
 
 module.exports = router;
