@@ -5,7 +5,7 @@ const { connectToDatabase } = require('../../conn');
 router.get('/', async (req, res, next) => {
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories');
+        const groups = await conn.query('SELECT id_categories AS id, nom AS name, label FROM Categories');
 
         res.status(200).json(groups);
 
@@ -26,7 +26,8 @@ router.post('/', async (req, res, next) => {
             [nom,id_parent,label]
         );
 
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
+        res.status(200).json({ message: 'Produit ajouté avec succès',
+        });
 
         conn.end();
     } catch (err) {
