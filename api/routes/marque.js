@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
             [nom,logo_marque,pays,adresse,tel]
         );
 
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
+        res.status(200).json({ message: 'Marque ajoutée avec succès', result });
 
         conn.end();
     } catch (err) {

@@ -27,7 +27,7 @@ router.post('/', async (req, res, next) => {
             [date_paiement,status,id_commande,id_client]
         );
 
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
+        res.status(200).json({ message: 'Paiement ajouté avec succès', result });
 
         conn.end();
     } catch (err) {

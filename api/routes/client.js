@@ -26,8 +26,7 @@ router.post('/', async (req, res, next) => {
             [nom,prenom,age,email,tel,date_inscription,motdepasse,Sexe]
         );
 
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
-
+        res.status(200).json({ message: 'Client ajouté avec succès', result });
         conn.end();
     } catch (err) {
         console.error('Erreur lors de l\'ajout du produit :', err);

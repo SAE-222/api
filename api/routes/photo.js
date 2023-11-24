@@ -26,7 +26,7 @@ router.post('/', async (req, res, next) => {
             [ordre,liens,id_produit]
         );
 
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
+        res.status(200).json({ message: 'Photo ajoutée avec succès', result });
 
         conn.end();
     } catch (err) {

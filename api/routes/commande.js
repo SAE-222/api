@@ -26,9 +26,8 @@ router.post('/', async (req, res, next) => {
             'INSERT INTO Commande (status,date_commande,adr_livraison,adr_facturation,code_postal,code_postal_facturation,id_client,id_promotion,id_panier) VALUES (?, ?, ?,?,?,?,?,?,?)',
             [status,date_commande,adr_livraison,adr_facturation,code_postal,code_postal_facturation,id_client,id_promotion,id_panier]
         );
-
-        res.status(200).json({ message: 'Produit ajouté avec succès', result });
-
+        
+        res.status(200).json({ message: 'Commande ajoutée avec succès', result });
         conn.end();
     } catch (err) {
         console.error('Erreur lors de l\'ajout du produit :', err);
