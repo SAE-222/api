@@ -2,12 +2,27 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 
-router.get('/', async (req, res, next) => {
+router.get('/:nom_marque?', async (req, res, next) => {
+    const nomMarque = req.params.nom_marque;
+
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_marque,nom,logo_marque,pays,adresse,tel  FROM Marque');
+        let query = 'SELECT id_marque, nom, logo_marque, pays, adresse, tel FROM Marque';
 
-        res.status(200).json(groups);
+        // Vérifie s'il y a un nom de marque spécifique fourni dans l'URL
+        if (nomMarque) {
+            query += ' WHERE nom = ?';
+            const marque = await conn.query(query, [nomMarque]);
+
+            if (marque.length > 0) {
+                res.status(200).json(marque);
+            } else {
+                res.status(404).json({ message: "Marque non trouvée" });
+            }
+        } else {
+            const marques = await conn.query(query);
+            res.status(200).json(marques);
+        }
 
         conn.end();
     } catch (err) {
@@ -15,6 +30,7 @@ router.get('/', async (req, res, next) => {
         res.status(500).json({ error: err });
     }
 });
+
 
 router.post('/', async (req, res, next) => {
     try {
@@ -33,6 +49,7 @@ router.post('/', async (req, res, next) => {
         console.error('Erreur lors de l\'ajout du produit :', err);
         res.status(500).json({ error: err });
     }
+    res.status(200).json({ message: 'Marque ajouté avec succès',});
 });
 
 module.exports = router;

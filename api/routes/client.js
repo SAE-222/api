@@ -5,7 +5,7 @@ const { connectToDatabase } = require('../../conn');
 router.get('/', async (req, res, next) => {
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_client,nom,prenom,age,email,tel,date_inscription,motdepasse,Sexe  FROM Client');
+        const groups = await conn.query('SELECT id_client,nom,prenom,age,email,tel,date_inscription,Sexe  FROM Client');
 
         res.status(200).json(groups);
 
