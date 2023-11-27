@@ -2,19 +2,35 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 
-router.get('/', async (req, res, next) => {
+router.get('/:nom_categorie?', async (req, res, next) => {
+    const nomCategorie = req.params.nom_categorie;
+
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories WHERE id_parent IS NULL');
+        let query = 'SELECT id_categories, nom, id_parent, label FROM Categories WHERE id_parent IS NULL';
 
-        res.status(200).json(groups);
+        if (nomCategorie) {
+            query += ` AND nom = ?`;
+            const categorie = await conn.query(query, [nomCategorie]);
+
+            if (categorie.length > 0) {
+                res.status(200).json(categorie);
+            } else {
+                res.status(404).json({ message: "Catégorie non trouvée" });
+            }
+        } else {
+            const categories = await conn.query(query);
+            res.status(200).json(categories);
+        }
 
         conn.end();
     } catch (err) {
-        console.error('Erreur lors de la récupération des groupes :', err);
+        console.error('Erreur lors de la récupération des catégories :', err);
         res.status(500).json({ error: err });
     }
 });
+
+
 
 router.post('/', async (req, res, next) => {
     try {
