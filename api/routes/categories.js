@@ -10,28 +10,15 @@ router.get('/:param', async (req, res, next) => {
         let categories = [];
 
         if (!isNaN(param)) { // Vérifie si le paramètre est un nombre (ID)
-            const parentCategory = await conn.query(
-                'SELECT id_parent FROM Categories WHERE id_categories = ?',
-                [param]
-            );
-
-            if (parentCategory.length === 0) {
-                return res.status(404).json({ error: "Catégorie non trouvée" });
-            }
-
-            const parentId = parentCategory[0].id_parent;
-
             categories = await conn.query(
                 'SELECT id_categories AS id, nom AS name, label ' +
                 'FROM Categories ' +
                 'WHERE id_parent = ?',
-                [parentId]
+                [param]
             );
-
-            res.status(200).json({ parentId, subCategories: categories });
         } else { // Si ce n'est pas un nombre, considère que c'est un nom de catégorie
             const parentCategory = await conn.query(
-                'SELECT id_categories, id_parent FROM Categories WHERE nom = ?',
+                'SELECT id_categories FROM Categories WHERE nom = ?',
                 [param]
             );
 
@@ -39,7 +26,7 @@ router.get('/:param', async (req, res, next) => {
                 return res.status(404).json({ error: "Catégorie non trouvée" });
             }
 
-            const parentId = parentCategory[0].id_parent;
+            const parentId = parentCategory[0].id_categories;
 
             categories = await conn.query(
                 'SELECT id_categories AS id, nom AS name, label ' +
@@ -47,9 +34,9 @@ router.get('/:param', async (req, res, next) => {
                 'WHERE id_parent = ?',
                 [parentId]
             );
-
-            res.status(200).json({ parentId, subCategories: categories });
         }
+
+        res.status(200).json({ subCategories: categories });
 
         conn.end();
     } catch (err) {
@@ -57,5 +44,6 @@ router.get('/:param', async (req, res, next) => {
         res.status(500).json({ error: err });
     }
 });
+
 
 module.exports = router;
