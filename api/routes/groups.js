@@ -30,8 +30,6 @@ router.get('/:nom_categorie?', async (req, res, next) => {
     }
 });
 
-
-
 router.post('/', async (req, res, next) => {
     try {
         const { nom,id_parent,label } = req.body;

@@ -35,4 +35,24 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.delete('/:IdCommande',async (req, res) => {
+    const IdCommande = req.params.IdCommande;
+    const query = 'DELETE FROM Commande WHERE id_commande = ?';
+  
+    const conn = await connectToDatabase()
+    conn.query(query, [IdCommande], (err, results) => {
+      if (err) {
+        console.error('Erreur lors de la suppression de la commande :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+      } else {
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'Commande non trouvée' });
+        } else {
+          res.json({ message: 'Commande supprimée avec succès' });
+        }
+      }
+    });
+     res.status(200).json({ message: 'Produit ajouté avec succès',});
+});
+
 module.exports = router;

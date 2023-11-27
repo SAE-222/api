@@ -44,7 +44,6 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-
 router.delete('/:IdProduit',async (req, res) => {
     const IdProduit = req.params.IdProduit;
     const query = 'DELETE FROM Produit WHERE id_produit = ?';
