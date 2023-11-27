@@ -5,7 +5,7 @@ const { connectToDatabase } = require('../../conn');
 router.get('/', async (req, res, next) => {
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories');
+        const groups = await conn.query('SELECT id_categories, nom, label FROM Categories WHERE id_parent IS NULL');
 
         res.status(200).json(groups);
 
