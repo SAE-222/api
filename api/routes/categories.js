@@ -36,7 +36,7 @@ router.get('/:param', async (req, res, next) => {
             );
         }
 
-        res.status(200).json({ subCategories: categories });
+        res.status(200).json(categories);
 
         conn.end();
     } catch (err) {
@@ -44,6 +44,7 @@ router.get('/:param', async (req, res, next) => {
         res.status(500).json({ error: err });
     }
 });
+
 
 
 module.exports = router;
