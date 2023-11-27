@@ -2,16 +2,22 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 
-router.get('/', async (req, res, next) => {
+router.get('/categories/:categoriesId', async (req, res, next) => {
     try {
+        const categoriesId = req.params.categoriesId;
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_produit, description, prix,nom,taille,disponibilite,stock,id_categories,id_promotion,id_marque FROM Produit');
+        const products = await conn.query(
+            'SELECT id_produit, description, prix, nom, taille, disponibilite, stock, id_categories, id_promotion, id_marque ' +
+            'FROM Produit ' +
+            'WHERE id_categories = ?',
+            [categoriesId]
+        );
 
-        res.status(200).json(groups);
+        res.status(200).json(products);
 
         conn.end();
     } catch (err) {
-        console.error('Erreur lors de la récupération des groupes :', err);
+        console.error('Erreur lors de la récupération des produits :', err);
         res.status(500).json({ error: err });
     }
 });
