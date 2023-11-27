@@ -35,4 +35,23 @@ router.post('/', async (req, res, next) => {
         res.status(500).json({ error: err });
     }
 });
+
+router.delete('/:IdProduit', (req, res) => {
+    const IdProduit = req.params.IdProduit;
+    const query = 'DELETE FROM Produit WHERE id_produit = ?';
+  
+    const conn = connectToDatabase()
+    conn.query(query, [IdProduit], (err, results) => {
+      if (err) {
+        console.error('Erreur lors de la suppression du produit :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+      } else {
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'Produit non trouvé' });
+        } else {
+          res.json({ message: 'Produit supprimé avec succès' });
+        }
+      }
+    });
+});
 module.exports = router;

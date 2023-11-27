@@ -35,4 +35,23 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+router.delete('/:photoId', (req, res) => {
+    const photoId = req.params.photoId;
+    const query = 'DELETE FROM Photo WHERE id_photo = ?';
+  
+    const conn = connectToDatabase()
+    conn.query(query, [photoId], (err, results) => {
+      if (err) {
+        console.error('Erreur lors de la suppression de la photo :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+      } else {
+        if (results.affectedRows === 0) {
+          res.status(404).json({ error: 'Photo non trouvée' });
+        } else {
+          res.json({ message: 'Photo supprimée avec succès' });
+        }
+      }
+    });
+  });
+
 module.exports = router;
