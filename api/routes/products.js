@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 
-router.get('/categories/:categoriesId', async (req, res, next) => {
+router.get('/categories/:categoryId', async (req, res, next) => {
     try {
-        const categoriesId = req.params.categoriesId;
+        const categoryId = req.params.categoryId;
         const conn = await connectToDatabase();
         const products = await conn.query(
             'SELECT id_produit, description, prix, nom, taille, disponibilite, stock, id_categories, id_promotion, id_marque ' +
             'FROM Produit ' +
             'WHERE id_categories = ?',
-            [categoriesId]
+            [categoryId]
+
         );
 
         res.status(200).json(products);
@@ -23,14 +24,15 @@ router.get('/categories/:categoriesId', async (req, res, next) => {
 });
 
 
+
 router.post('/', async (req, res, next) => {
     try {
-        const {description, prix, nom, disponibilite, stock, id_categories, id_promotion, id_marque } = req.body;
+        const {description, prix, nom, disponibilite, stock,taille, id_categories, id_promotion, id_marque } = req.body;
 
         const conn = await connectToDatabase();
         const result = await conn.query(
-            'INSERT INTO Produit (description, prix, nom,taille, disponibilite, stock, id_categories, id_promotion, id_marque) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [description, prix, nom, disponibilite, stock, id_categories, id_promotion, id_marque]
+            'INSERT INTO Produit (description, prix, nom, disponibilite, stock,taille, id_categories, id_promotion, id_marque) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [description, prix, nom, disponibilite, stock,taille, id_categories, id_promotion, id_marque]
         );
 
         res.status(200).json({ message: 'Produit ajouté avec succès', result });
@@ -42,11 +44,12 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-router.delete('/:IdProduit', (req, res) => {
+
+router.delete('/:IdProduit',async (req, res) => {
     const IdProduit = req.params.IdProduit;
     const query = 'DELETE FROM Produit WHERE id_produit = ?';
   
-    const conn = connectToDatabase()
+    const conn = await connectToDatabase()
     conn.query(query, [IdProduit], (err, results) => {
       if (err) {
         console.error('Erreur lors de la suppression du produit :', err);
@@ -59,5 +62,6 @@ router.delete('/:IdProduit', (req, res) => {
         }
       }
     });
+     res.status(200).json({ message: 'Produit ajouté avec succès',});
 });
 module.exports = router;
