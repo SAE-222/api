@@ -71,6 +71,61 @@ router.get('/categories/:identifier', async (req, res, next) => {
     }
 });
 
+router.get('/:productId?', async (req, res, next) => {
+    try {
+        const conn = await connectToDatabase();
+        const productId = req.params.productId;
+
+        if (productId) {
+            // Si un ID de produit est spécifié, récupérer ce produit spécifique
+            const product = await conn.query(
+                'SELECT id_produit, description, prix, nom, taille, disponibilite, stock, id_categories, id_promotion, id_marque ' +
+                'FROM Produit WHERE id_produit = ?',
+                [productId]
+            );
+
+            if (product.length === 0) {
+                return res.status(404).json({ error: 'Produit non trouvé' });
+            }
+
+            // Récupérer les liens des images associées à ce produit
+            const images = await conn.query(
+                'SELECT liens FROM Photo WHERE id_produit = ?',
+                [productId]
+            );
+
+            const imageLinks = images.map(img => img.liens);
+            const productWithImages = { ...product[0], images: imageLinks };
+
+            res.status(200).json(productWithImages);
+        } else {
+            // Si aucun ID de produit n'est spécifié, récupérer tous les produits
+            const products = await conn.query(
+                'SELECT id_produit, description, prix, nom, taille, disponibilite, stock, id_categories, id_promotion, id_marque FROM Produit'
+            );
+
+            // Pour chaque produit, récupérer les liens des images associées
+            const productsWithImages = [];
+            for (let product of products) {
+                const images = await conn.query(
+                    'SELECT liens FROM Photo WHERE id_produit = ?',
+                    [product.id_produit]
+                );
+                const imageLinks = images.map(img => img.liens);
+                const productWithImage = { ...product, images: imageLinks };
+                productsWithImages.push(productWithImage);
+            }
+
+            res.status(200).json(productsWithImages);
+        }
+
+        conn.end();
+    } catch (err) {
+        console.error('Erreur lors de la récupération des produits :', err);
+        res.status(500).json({ error: err });
+    }
+});
+
 
 router.post('/', async (req, res, next) => {
     try {
