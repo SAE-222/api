@@ -51,23 +51,23 @@ router.post('/', async (req, res, next) => {
     res.status(200).json({ message: 'Marque ajouté avec succès',});
 });
 
-router.delete('/:brandId', (req, res) => {
-    const brandId = req.params.brandId;
-    const query = 'DELETE FROM Marque WHERE id_marque = ?';
-  
-    const conn = connectToDatabase()
-    conn.query(query, [brandId], (err, results) => {
-      if (err) {
-        console.error('Erreur lors de la suppression de la marque :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
+router.delete('/:IdMarque',async (req, res) => {
+  const IdMarque = req.params.IdProduit;
+  const query = 'DELETE FROM Marque WHERE id_marque = ?';
+
+  const conn = await connectToDatabase()
+  conn.query(query, [IdMarque], (err, results) => {
+    if (err) {
+      console.error('Erreur lors de la suppression de la marque :', err);
+      res.status(500).json({ error: 'Erreur serveur' });
+    } else {
+      if (results.affectedRows === 0) {
+        res.status(404).json({ error: 'Marque non trouvée'});
       } else {
-        if (results.affectedRows === 0) {
-          res.status(404).json({ error: 'Marque non trouvée' });
-        } else {
-          res.json({ message: 'Marque supprimée avec succès' });
-        }
+        res.json({ message: 'Marque supprimée avec succès'});
       }
-    });
+    }
   });
+});
 
 module.exports = router;

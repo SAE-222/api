@@ -52,7 +52,6 @@ router.delete('/:IdCommande',async (req, res) => {
         }
       }
     });
-     res.status(200).json({ message: 'Produit ajouté avec succès',});
 });
 
 module.exports = router;
