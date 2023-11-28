@@ -52,14 +52,24 @@ router.get('/categories/:identifier', async (req, res, next) => {
             [allChildCategories]
         );
 
-        res.status(200).json(products);
+        // Récupérer les liens des images pour chaque produit
+        const productsWithImages = [];
+        for (let product of products) {
+            const images = await conn.query(
+                'SELECT liens FROM Photo WHERE id_produit = ?',
+                [product.id_produit]
+            );
+            const imageLinks = images.map(img => img.liens);
+            productsWithImages.push({ ...product, images: imageLinks });
+        }
+
+        res.status(200).json(productsWithImages);
         conn.end();
     } catch (err) {
         console.error('Erreur lors de la récupération des produits :', err);
         res.status(500).json({ error: err });
     }
 });
-
 
 
 router.post('/', async (req, res, next) => {
