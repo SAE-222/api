@@ -2,40 +2,45 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 const bcrypt = require('bcrypt');
-const crypto = require('crypto');
 
-const secret_key = crypto.randomBytes(64).toString('hex');
+router.post('/', async (req, res) => {
+  const { email, password } = req.body;
 
-router.post('/',async (req, res) => {
-    const {nom,prenom,age,email,phone,password,sex } = req.body;
-    const hashedPassword = bcrypt.hashSync(password,10)
-    
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Veuillez entrer un email et/ou mot de passe.' });
+  }
+
+  if(password.length<8){
+    return res.status(400).json({ error: 'Le mot de passe doit faire au moins 8 caractères' });
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Adresse e-mail invalide' });
+  }
+
+  try {
     const conn = await connectToDatabase();
-    await conn.query(
-      'SELECT * FROM Client WHERE email = ?',
-      [email],
-      (err, results) => {
-        if (err) {
-          console.error('Erreur lors de la requête SQL :', err);
-          res.status(500).json({ error: 'Erreur serveur' });
-        } else if (results.length > 0) {
-          res.status(409).json({ error: 'Un email est déjà enregistré. Veuillez en choisir une autre' });
-        } else {
-          connection.query(
-            'INSERT INTO Client (nom,prenom,age,email,phone,motdepasse,sexe) VALUES (?, ?)', [nom,prenom,age,email,phone,hashedPassword,sex],
-            (err, results) => {
-              if (err) {
-                console.error('Erreur lors de l\'inscription :', err);
-                res.status(500).json({ error: 'Erreur serveur' });
-              } else {
-                const token = jwt.sign({email,hashedPassword},secret_key);
-                res.json({token});
-              }
-            }
-          );
-        }
-      }
-    );
-  });
+
+    const existingUser = await conn.query('SELECT * FROM Client WHERE email = ?', [email]);
+
+    if (existingUser.length > 0) {
+      conn.release();
+      return res.status(400).json({ error: 'Email déjà enregistré.' });
+    }
+
+    const hashedPassword = bcrypt.hash(password, 10)
+    const clientResult = await conn.query('INSERT INTO Client (email) VALUES (?)', [email]);
+    const clientId = clientResult.insertId;
+    await conn.query('INSERT INTO Connexion (id_client, password) VALUES (?, ?)', [clientId, hashedPassword]);
+
+    conn.release();
+
+    res.status(201).json({ message: 'L\'enregistrement c\'est bien effectué.'});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
 
 module.exports = router;
