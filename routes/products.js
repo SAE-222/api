@@ -63,7 +63,7 @@ router.get('/categories/:identifier', async (req, res, next) => {
                 [product.id_produit]
             );
             const imageLinks = images.map(img => img.liens);
-            productsWithImages.push({ ...product, images: imageLinks });
+            productsWithImages.push({ ...product, images: imageLinks, sizes: product.taille.split('/') });
         }
 
         res.status(200).json(productsWithImages);
@@ -98,7 +98,7 @@ router.get('/:productId?', async (req, res, next) => {
             );
 
             const imageLinks = images.map(img => img.liens);
-            const productWithImages = { ...product[0], images: imageLinks };
+            const productWithImages = { ...product[0], images: imageLinks, sizes: product[0].taille.split('/') };
 
             res.status(200).json(productWithImages);
         } else {
@@ -115,7 +115,7 @@ router.get('/:productId?', async (req, res, next) => {
                     [product.id_produit]
                 );
                 const imageLinks = images.map(img => img.liens);
-                const productWithImage = { ...product, images: imageLinks };
+                const productWithImage = { ...product, images: imageLinks, sizes: product.taille.split('/') };
                 productsWithImages.push(productWithImage);
             }
 

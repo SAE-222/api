@@ -31,9 +31,10 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Email déjà enregistré.' });
     }
 
-    const hashedPassword = bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10)
     const clientResult = await conn.query('INSERT INTO Client (email) VALUES (?)', [email]);
     const clientId = clientResult[0].id_client;
+    console.log(clientId);
     await conn.query('INSERT INTO Connexion (id_client, password) VALUES (?, ?)', [clientId, hashedPassword]);
 
     conn.release();
