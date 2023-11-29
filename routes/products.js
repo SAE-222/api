@@ -144,6 +144,7 @@ router.post('/', async (req, res, next) => {
         console.error('Erreur lors de l\'ajout du produit :', err);
         res.status(500).json({ error: err });
     }
+    res.status(200).json({ message: 'Produit ajouté avec succès',});
 });
 
 router.delete('/:IdProduit',async (req, res) => {
