@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../configs/conn');
+const cors = require('cors');
+router.use(cors({methods: ['GET','POST']}));
 
 router.get('/', async (req, res, next) => {
     try {

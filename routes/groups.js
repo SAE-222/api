@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../configs/conn');
+const cors = require('cors');
+router.use(cors({methods: ['GET','POST']}));
 
 router.get('/:nom_categorie?', async (req, res, next) => {
     const nomCategorie = req.params.nom_categorie;

@@ -3,6 +3,8 @@ const router = express.Router();
 const { connectToDatabase } = require('../configs/conn');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const cors = require('cors');
+router.use(cors({methods: ['POST']}));
 
 const secret_key = crypto.randomBytes(64).toString('hex');
 

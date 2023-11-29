@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../configs/conn');
 const bcrypt = require('bcrypt');
+const cors = require('cors');
+router.use(cors({methods: ['POST']}));
 
 router.post('/', async (req, res) => {
   const { email, password } = req.body;

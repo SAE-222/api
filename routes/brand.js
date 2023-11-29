@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../configs/conn');
+const cors = require('cors');
+router.use(cors({methods: ['GET','POST','DELETE','PUT']}));
 
 router.get('/:nom_marque?', async (req, res, next) => {
     const nomMarque = req.params.nom_marque;
