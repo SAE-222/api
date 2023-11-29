@@ -33,7 +33,7 @@ router.post('/', async (req, res) => {
 
     const hashedPassword = bcrypt.hash(password, 10)
     const clientResult = await conn.query('INSERT INTO Client (email) VALUES (?)', [email]);
-    const clientId = clientResult.insertId;
+    const clientId = clientResult[0].id_client;
     await conn.query('INSERT INTO Connexion (id_client, password) VALUES (?, ?)', [clientId, hashedPassword]);
 
     conn.release();
