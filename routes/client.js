@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { connectToDatabase } = require('../../conn');
+const { connectToDatabase } = require('../configs/conn');
 
 router.get('/:clientId?', async (req, res, next) => {
     const clientId = req.params.clientId;
