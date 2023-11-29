@@ -2,16 +2,30 @@ const express = require('express');
 const router = express.Router();
 const { connectToDatabase } = require('../../conn');
 
-router.get('/', async (req, res, next) => {
+router.get('/:clientId?', async (req, res, next) => {
+    const clientId = req.params.clientId;
+
     try {
         const conn = await connectToDatabase();
-        const groups = await conn.query('SELECT id_client,nom,prenom,age,email,tel,date_inscription,Sexe  FROM Client');
+        let query = 'SELECT id_client, nom, prenom, age, email, tel, date_inscription, Sexe FROM Client';
 
-        res.status(200).json(groups);
+        if (clientId) {
+            query += ` WHERE id_client = ${clientId}`;
+            const client = await conn.query(query);
+
+            if (client.length > 0) {
+                res.status(200).json(client[0]);
+            } else {
+                res.status(404).json({ message: 'Client non trouvé' });
+            }
+        } else {
+            const clients = await conn.query(query);
+            res.status(200).json(clients);
+        }
 
         conn.end();
     } catch (err) {
-        console.error('Erreur lors de la récupération des marques :', err);
+        console.error('Erreur lors de la récupération des clients :', err);
         res.status(500).json({ error: err });
     }
 });
