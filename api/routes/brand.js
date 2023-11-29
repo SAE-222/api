@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { connectToDatabase } = require('../configs/conn');
+const { connectToDatabase } = require('../../conn');
 
 router.get('/:nom_marque?', async (req, res, next) => {
     const nomMarque = req.params.nom_marque;

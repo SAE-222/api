@@ -14,10 +14,10 @@ app.use(errorHandler); // Utilisation du gestionnaire d'erreurs
 for (const file of fs.readdirSync('./api/routes')) {
     try {
         if (file.endsWith('.js')) {
-            app.use('/api/' + file.split('.')[0], require('../routes/' + file));
+            app.use('/api/' + file.split('.')[0], require('./api/routes/' + file));
         }
     } catch (err) {
-        console.error('Une erreur est survenue lors du montage des routes de l\'API :', err);
+        console.error('Une erreur est survenue :', err);
     }
 }
 
