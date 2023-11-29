@@ -11,10 +11,10 @@ router.post('/',async (req, res,next) => {
 
   const conn = await connectToDatabase();
   await conn.query(
-    'SELECT * FROM Client,Connexion WHERE Client.email=(?) AND mdp=(?)',[email, password],(err, results) => {
+    'SELECT * FROM Client,Connexion WHERE Client.email=(?) AND Connexion.mdp=(?)',[email, password],(err, results) => {
       if (err) {
         console.error('Erreur lors de la requête SQL :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
+        res.status(500).json({ error: 'Erreur serveur'});
       } else if (results.length > 0) {
         const token = jwt.sign({ email: results[0].email}, secretKey);
         res.json({ token });
