@@ -12,7 +12,7 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Veuillez entrer un email et/ou mot de passe.' });
   }
 
-  if(password.length<8){
+  if(password.length < 8){
     return res.status(400).json({ error: 'Le mot de passe doit faire au moins 8 caractères' });
   }
 
@@ -27,19 +27,29 @@ router.post('/', async (req, res) => {
     const existingUser = await conn.query('SELECT * FROM Client WHERE email = ?', [email]);
 
     if (existingUser.length > 0) {
-      conn.release();
+      await conn.release();
       return res.status(400).json({ error: 'Email déjà enregistré.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
-    const clientResult = await conn.query('INSERT INTO Client (email) VALUES (?)', [email]);
+    const insertClientResult = await conn.query('INSERT INTO Client (email) VALUES (?)', [email]);
+    if (insertClientResult.affectedRows !== 1) {
+        await conn.release();
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+
+    const clientResult = await conn.query('SELECT * FROM Client WHERE email = ?', [email]);
+    if (clientResult.length !== 1) {
+        await conn.release();
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+
     const clientId = clientResult[0].id_client;
-    console.log(clientId);
+    const hashedPassword = await bcrypt.hash(password, 10)
     await conn.query('INSERT INTO Connexion (id_client, password) VALUES (?, ?)', [clientId, hashedPassword]);
 
-    conn.release();
+    await conn.release();
 
-    res.status(201).json({ message: 'L\'enregistrement c\'est bien effectué.'});
+    res.status(201).json({ client: clientResult[0] });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erreur serveur' });
