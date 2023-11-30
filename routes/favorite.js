@@ -37,26 +37,24 @@ router.post('/', async (req, res, next) => {
         console.error('Erreur lors de l\'ajout du favori :', err);
         res.status(500).json({ error: err });
     }
-    res.status(200).json({ message: 'Favori ajouté avec succès',});
 });
 
 router.delete('/:IdFavori',async (req, res) => {
     const IdFavori = req.params.IdFavori;
-    const query = 'DELETE FROM Favoris WHERE id_favori = ?';
+    try {
+      const conn = await connectToDatabase();
   
-    const conn = await connectToDatabase()
-    conn.query(query, [IdFavori], (err, results) => {
-      if (err) {
-        console.error('Erreur lors de la suppression du favori :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
-      } else {
-        if (results.affectedRows === 0) {
-          res.status(404).json({ error: 'Favori non trouvé' });
-        } else {
-          res.json({ message: 'Favori supprimé avec succès' });
-        }
-      }
-    });
+      await conn.query('DELETE FROM Ajouter WHERE id_favori = ?', [IdFavori]);
+  
+      await conn.query('DELETE FROM Favoris WHERE id_favori = ?', [IdFavori]);
+  
+      conn.release();
+  
+      res.status(200).json({ message: 'Favori supprimé avec succès' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
 });
 
 module.exports = router;
