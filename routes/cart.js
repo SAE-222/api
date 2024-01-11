@@ -56,4 +56,19 @@ router.delete('/:IdPanier',async (req, res) => {
   }
 });
 
+router.put('/:IdPanier',async(req,res) => {
+    const IdPanier = req.params.IdPanier;
+    const {quantité,total} = req.body;
+    try{
+        const conn = await connectToDatabase();
+        await conn.query('UPDATE Panier SET quantité = ?, total = ? WHERE id_panier = ?', [quantité, total, IdPanier]);
+        conn.release();
+
+        res.status(200).json({ message: 'Panier mis à jour avec succès' });
+    } catch (error){
+        console.error(error);
+        res.status(500).json({error : 'Erreur serveur' });
+    }
+});
+
 module.exports = router;

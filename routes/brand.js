@@ -72,4 +72,19 @@ router.delete('/:IdMarque',async (req, res) => {
   });
 });
 
+router.put('/:IdMarque',async(req,res) => {
+  const idMarque = req.params.IdMarque;
+  const {nom,logo_marque,pays,adresse,tel} = req.body;
+  try{
+      const conn = await connectToDatabase();
+      await conn.query('UPDATE Marque SET nom = ?, logo_marque = ?, pays = ?, adresse = ?, tel = ? WHERE id_marque = ?', [nom,logo_marque,pays,adresse,tel,idMarque]);
+      conn.release();
+
+      res.status(200).json({ message: 'Marque mise à jour avec succès' });
+  } catch (error){
+      console.error(error);
+      res.status(500).json({error : 'Erreur serveur' });
+  }
+});
+
 module.exports = router;
