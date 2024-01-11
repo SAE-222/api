@@ -20,9 +20,12 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
     try {
-        const {quantité,total,id_client,id_produit} = req.body;
+        const {quantité,id_client,id_produit} = req.body;
 
         const conn = await connectToDatabase();
+        const result_IdProduit = await conn.query('SELECT prix FROM Produit WHERE id_produit = ?', [id_produit]);
+        const prix_produit = result_IdProduit[0].prix;
+        const total = prix_produit * quantité 
         const result = await conn.query(
             'INSERT INTO Panier (quantité,total,id_client) VALUES (?,?,?) RETURNING id_panier',
             [quantité,total,id_client]
