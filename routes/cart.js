@@ -58,9 +58,13 @@ router.delete('/:IdPanier',async (req, res) => {
 
 router.put('/:IdPanier',async(req,res) => {
     const IdPanier = req.params.IdPanier;
-    const {quantité,total} = req.body;
+    const {IdProduit,quantité} = req.body;
     try{
         const conn = await connectToDatabase();
+        await conn.query('UPDATE Panier_produit SET id_produit = ? WHERE id_panier = ? ' , [IdProduit,IdPanier]);
+        const result = await conn.query('SELECT prix FROM Produit WHERE id_produit = ?', [IdProduit]);
+        const prix_produit = result[0].prix;
+        const total = prix_produit * quantité 
         await conn.query('UPDATE Panier SET quantité = ?, total = ? WHERE id_panier = ?', [quantité, total, IdPanier]);
         conn.release();
 
