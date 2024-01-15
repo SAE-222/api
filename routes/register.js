@@ -43,13 +43,21 @@ router.post('/', async (req, res) => {
         return res.status(500).json({ error: 'Erreur serveur' });
     }
 
-    const clientId = clientResult[0].id_client;
+    const firstResponse = clientResult[0];
+
+    const clientId = firstResponse.id_client;
     const hashedPassword = await bcrypt.hash(password, 10)
     await conn.query('INSERT INTO Connexion (id_client, password) VALUES (?, ?)', [clientId, hashedPassword]);
 
     await conn.release();
 
-    res.status(201).json({ client: clientResult[0] });
+    const response = {
+        id_client: clientId,
+        email: firstResponse.email,
+        password: hashedPassword
+    }
+
+    res.status(201).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Erreur serveur' });
